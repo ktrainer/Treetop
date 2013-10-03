@@ -1,0 +1,21 @@
+grammar Simple
+  rule gr
+    whitespace* mtoken whitespace*   <GR>
+  end
+
+  rule mtoken
+    (alpha/numeric)+    <Token>
+  end
+
+  rule whitespace
+    [ /t/r/n]
+  end
+
+  rule alpha
+    [a-zA-Z]+
+  end
+
+  rule numeric
+    [0-9]+
+  end
+end

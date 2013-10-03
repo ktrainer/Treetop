@@ -1,0 +1,64 @@
+# A treetop grammar to parse email lists
+#
+
+grammar EmailList
+  rule email_list
+    full_email_address [ ]* optional_email_list
+
+    {
+      # return an array of email pairs
+      # each pair consisting of an (optionally empty) email name
+      # followed by an email address.
+
+      def list_of_email_pairs
+        #start out with the email name and address for the first email
+        email_list = [
+          [full_email_address.optional_email_name.email_name_text_value, full_email_address.email_address.text_value ]]
+          unless optional_email_list.terminal?
+            email_list += optional_email_list.email_list.list_of_email_pairs
+          end
+        email_list
+      end
+    }
+  end
+
+  rule optional_email_list
+    (','/';') [ ]* email_list / ''
+  end
+
+  rule full_email_address
+    optional_email_name [ ]* '<' email_address '>'
+  end
+
+  rule optional_email_name
+    '"' email_name '"' { def email_name_text_value
+                           email_name.text_value
+                         end
+                        }
+    / unquoted_email_name &([ ]* '<') { def email_name_text_value
+                                          unquoted_email_name.text_value
+                                        end
+                                      }
+    / '' { def email_name_text_value
+               ''
+           end
+         }
+
+  end
+
+  rule unquoted_email_name
+    unquoted_email_name_word (&([ ]* '<') / ([ ]+ unquoted_email_name))
+  end
+
+  rule unquoted_email_name_word
+    (!(' '/'<') .)+
+  end
+
+  rule email_name
+    [^"]*
+  end
+
+  rule email_address
+    [^>]+
+  end
+end

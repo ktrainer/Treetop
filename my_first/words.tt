@@ -1,0 +1,16 @@
+grammar Words
+  rule string
+    (space)+ {
+      def match_count
+        elements.count
+      end
+    }
+  end
+  rule space
+   ' '
+  end
+
+  rule b
+    'b'
+  end
+end

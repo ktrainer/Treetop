@@ -1,0 +1,9 @@
+# my first treetop grammar
+# As long as you speak double-quote, I know what you mean.
+#
+
+grammar DoubleQuote
+  rule double_quote
+    '"'
+  end
+end

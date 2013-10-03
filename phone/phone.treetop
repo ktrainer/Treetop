@@ -1,0 +1,95 @@
+grammar Phone
+  rule phonenumber
+    (digit / punctuation / tens / teens / ntext  )+
+    {
+       def get_digits n
+
+         a = [n.get_digit] if n.respond_to? :get_digit
+         unless n.terminal?
+           a += n.elements.collect {|e| get_digits e}
+         end
+         a
+       end
+
+       def get_phone
+         get_digits(self).join
+       end
+
+       def get_formatted_phone
+         pn = get_phone
+         "(#{pn[0..2]}) #{pn[3..5]}-#{pn[6..-1]}"
+       end
+
+       def get_digit
+         ''
+       end
+    }
+  end
+
+  rule digit
+    [0-9]
+    {
+       def get_digit
+         self.text_value
+       end
+
+    }
+  end
+
+  rule punctuation
+    [\.,\-,\(,\) _]
+    {
+           def get_digit
+             ''
+           end
+    }
+  end
+
+  rule ntext
+   ('one' / 'two' / 'three' / 'four' / 'five' / 'six' / 'seven' / 'eight' / 'nine' / 'zero' )
+   {
+     def get_digit
+           case self.text_value
+           when 'one' then '1'
+           when 'two' then '2'
+           when 'three' then '3'
+           when 'four' then  '4'
+           when 'five' then  '5'
+           when 'six' then  '6'
+           when 'seven' then  '7'
+           when 'eight' then  '8'
+           when 'nine' then  '9'
+           when 'zero' then  '0'
+           else "(#{self.text_value})"
+       end
+     end
+   }
+  end
+
+  rule teens
+    ntext 'teen'
+    {
+      def get_digit
+        '1'
+      end
+    }
+  end
+
+  rule tens
+    ( 'twenty' / 'thirty' / 'forty' / 'fifty' / 'sixty' / 'seventy' / 'eighty' / 'ninety' )
+    {
+      def get_digit
+        case self.text_value
+            when 'thirty' then 3
+            when 'forty'  then 4
+            when 'fifty'  then 5
+            when 'sixty'  then 6
+            when 'seventy' then 7
+            when 'eighty'  then 8
+            when 'ninety'  then 9
+            else "(#{self.text_value})"
+        end
+      end
+    }
+  end
+end

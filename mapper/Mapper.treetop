@@ -1,0 +1,93 @@
+#  Mapper Grammer
+#  Defines a grammar that parses a mapping spec
+#  ---------------------------------------------
+#    SourceFolder: m:\mystuff\test
+#    File: my_csv_file.csv {
+#       COL 1
+#     , COL_2
+#     , COL3 => TGTCOL3
+#    }
+#  ---------------------------------------------
+
+grammar Mapper
+   rule MapSpec
+     folder_spec newline file_list
+   end
+
+   rule folder_spec
+     'SourceFolder:' [ ]* folder_path
+   end
+
+   rule folder_path
+      anything_but_newline*
+   end
+
+   rule file_list
+     file_spec whitespace optional_file_list
+     {
+
+       def list_of_files
+
+         files = [[file_spec.file_name.text_value,file_spec.column_list.list_of_columns]]
+         unless optional_file_list.terminal?
+           files += optional_file_list.file_list.list_of_files
+         end
+         files
+       end
+     }
+   end
+
+   rule optional_file_list
+     whitespace file_list / ''
+   end
+
+   rule file_spec
+     [ ]* 'File:' [ ]* file_name [ ]* '{' whitespace column_list whitespace '}'
+   end
+
+   rule file_name
+     (!('{') .)+
+   end
+
+   rule column_list
+     column_map optional_column_list
+     {
+       def list_of_columns
+         tgt_col =  column_map.optional_target_column.terminal? ? column_map.column_name.text_value :  column_map.optional_target_column.column_name.text_value
+         col_list = {column_map.column_name.text_value.strip => tgt_col.strip  }
+         unless optional_column_list.terminal?
+           col_list.merge! optional_column_list.column_list.list_of_columns
+         end
+         col_list
+       end
+     }
+   end
+
+   rule optional_column_list
+     whitespace  ',' whitespace column_list / ''
+   end
+
+   rule column_map
+     column_name [ ]* optional_target_column
+   end
+
+   rule optional_target_column
+      '=>' [ ]* column_name / ''
+   end
+
+   rule column_name
+     [a-zA-Z0-9 _]*
+   end
+
+   rule anything_but_newline
+     [^\r\n]
+   end
+
+   rule newline
+     [\r\n]
+   end
+
+   rule whitespace
+    [ \t\r\n]*
+   end
+end

@@ -1,0 +1,23 @@
+# simple example illustrating Abstract Syntax Tree
+
+grammar SimpleAST
+    rule start
+        assignment
+    end
+
+    rule assignment
+	identifier '=' number {
+	  def ast ()
+	    Operation.new(:assignment, identifier.ast, number.ast)
+	  end
+	}
+    end
+
+    rule identifier
+        [a-zA-Z_] [a-zA-Z0-9_]* { def ast () Identifier.new(text_value) end }
+    end
+    
+    rule number
+        '-'? [0-9]+ { def ast () text_value.to_i end }
+    end
+end

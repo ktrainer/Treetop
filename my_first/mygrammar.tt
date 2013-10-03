@@ -1,0 +1,39 @@
+grammar MyGrammar
+   rule map
+     whitespace folder whitespace
+        {
+       def getFolder
+         return elements[2].text_value
+       end
+     }
+   end
+
+   rule folder
+     'Folder' colon? space* ( path_without_quotes /  drive_path_without_quotes)?
+   end
+
+   rule alpha_digit_special
+     [a-zA-Z0-9.+&\\]
+   end
+
+   rule path_without_quotes
+     ([\\] alpha_digit_special*)+
+   end
+
+    rule drive_path_without_quotes
+      [A-Z] colon 1..1 path_without_quotes
+    end
+
+   rule space
+     ' '
+   end
+
+   rule whitespace
+   [ \t\n\r]*
+   end
+
+   rule colon
+     ':'
+   end
+
+end
